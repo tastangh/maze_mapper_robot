@@ -100,7 +100,9 @@ pkill -9 roscore
 - **Solver:** Robot navigates the maze autonomously via Wall Following algorithm.
 - **Mapper:** Real-time visualization and mapping of the maze environment.
 
+![Maze Solver And Mapper](solver_map.png)
 
+![Map With Keyboard](manuel_map_with_keyboard.png)
 ---
 
 This README addresses both **Question 1 (Maze Solving)** and **Question 2 (Maze Mapping)** requirements.
