@@ -1,10 +1,7 @@
 <launch>
-    <!-- Micromouse simülasyonunu çalıştır -->
     <include file="$(find micromouse_maze)/launch/micromouse_maze4.launch" />
 
-    <!-- Solver düğümü -->
     <node pkg="solve_maze" type="my_solver" name="solver" output="screen" />
 
-    <!-- Mapper düğümü -->
     <node pkg="solve_maze" type="my_mapper" name="mapper" output="screen" />
 </launch>
