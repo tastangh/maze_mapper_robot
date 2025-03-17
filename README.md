@@ -1,95 +1,107 @@
-# Solve Maze - TurtleBot3 Maze Solving
+# Solve Maze - TurtleBot3 Maze Solving and Mapping
 
 ## Project Overview
-This project is developed to solve a maze using **TurtleBot3 in the Gazebo simulation environment**. TurtleBot3 receives **laser measurements via /scan messages** and **movement commands via /cmd_vel messages**. Using the **Wall Following algorithm**, TurtleBot3 attempts to navigate through the maze and reach the central point.
+This project uses **TurtleBot3 in the Gazebo simulation environment** to solve and map a maze. TurtleBot3 receives **laser scan measurements** and publishes **velocity commands** to navigate through the maze. Two primary functionalities are provided:
+- **Maze Solving:** Wall Following algorithm for autonomous navigation.
+- **Maze Mapping:** Real-time environment mapping using laser scan data.
 
-## Installation
-Follow these steps to set up the project on your system.
+Two nodes run concurrently:
+- **Solver node (`my_solver`)**: Guides TurtleBot3 through the maze using Wall Following.
+- **Mapper node (`my_mapper`)**: Generates a real-time map from laser scans using OpenCV.
 
-### 1. Clone the Repository
+## Installation and Setup
+
+### 1. Clone Necessary Repositories
 ```bash
 cd ~/robotlar_ws/src
 git clone https://gitlab.com/blm6191_2425b_tai/blm6191/micromouse_maze.git
 ```
 
-### 2. Compile Dependencies and Update Environment
+### 2. Set Environment Variables
 ```bash
 cd ~/robotlar_ws
 catkin_make
 source ~/.bashrc
 
-# Set TurtleBot3 model
 echo "export TURTLEBOT3_MODEL=waffle" >> ~/.bashrc
-source ~/.bashrc
-
-# Set Gazebo model path
 echo "export GAZEBO_MODEL_PATH=${GAZEBO_MODEL_PATH}:~/robotlar_ws/src/" >> ~/.bashrc
 source ~/.bashrc
 ```
 
-### 3. Launch the Maze Simulation
-```bash
-roslaunch micromouse_maze micromouse_maze4.launch
-```
+## Building the Solve Maze Package
 
-## Solver.cpp - Maze Solving Algorithm
-In this step, we will create the **solver.cpp** file, which enables TurtleBot3 to navigate through the maze. The **Wall Following algorithm** is implemented so that the robot follows walls and reaches the central point.
-
-### Define Solver.cpp and Compile
-Add the following lines to your **CMakeLists.txt** file to make the solver.cpp file compilable:
+### CMakeLists.txt Adjustments
+Ensure your `CMakeLists.txt` contains:
 ```cmake
 add_executable(my_solver src/solver.cpp)
 target_link_libraries(my_solver ${catkin_LIBRARIES})
+
+add_executable(my_mapper src/mapper.cpp)
+target_link_libraries(my_mapper ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 ```
 
-### Compile and Update Environment
-After every change, compile the code using the following commands:
+### 3. Compile the Package
 ```bash
-rosnode kill -a   
-pkill -9 gzserver
-pkill -9 gzclient
-pkill -9 roscore
 cd ~/robotlar_ws
 catkin_make
-source ~/.bashrc
+source devel/setup.bash
 ```
 
-### . Launch the Maze Simulation
+## Running Both Nodes Concurrently
+
+Create a launch file (`solver_mapper.launch`) in your package's `launch` folder:
+```xml
+<launch>
+  <include file="$(find micromouse_maze)/launch/micromouse_maze4.launch" />
+
+  <node pkg="solve_maze" type="my_solver" name="solver" output="screen" />
+  <node pkg="solve_maze" type="my_mapper" name="mapper" output="screen" />
+</launch>
+```
+
+### Launch Both Nodes
+```bash
+roslaunch solve_maze solver_mapper.launch
+```
+
+## Running Nodes Individually:
+
+**Solver only:**
 ```bash
 roslaunch micromouse_maze micromouse_maze4.launch
+rosrun solve_maze my_solver
 ```
 
-### Run the Solver
+**Mapper only (manual control or joystick required):**
 ```bash
+roslaunch micromouse_maze micromouse_maze4.launch
 rosrun solve_maze my_mapper
 ```
 
-This command executes **solver.cpp**, allowing TurtleBot3 to start solving the maze.
-
 ## Adjusting Simulation Speed
-To speed up the simulation by **10 times**, run the following command in the terminal:
+You can speed up the Gazebo simulation **by 10 times** using:
 ```bash
 gz physics -u 10000
 ```
 
 ## Camera Adjustment
-In Gazebo, adjust the camera **relative to TurtleBot3** for better observation of the simulation.
+Adjust Gazebo camera **relative to TurtleBot3** for clearer simulation visualization.
 
 ## Shutting Down the Simulation
-To terminate the simulation, run the following commands:
+To cleanly terminate all simulation processes:
 ```bash
-rosnode kill -a   
+rosnode kill -a
 pkill -9 gzserver
 pkill -9 gzclient
-pkill -9 roscore  
+pkill -9 roscore
 ```
 
 ## Results
-In this project, the **Wall Following algorithm** is implemented to solve the maze using TurtleBot3. The robot utilizes **laser data from /scan messages** to follow the nearest wall and reach the center of the maze.
+- **Solver:** Robot navigates the maze autonomously via Wall Following algorithm.
+- **Mapper:** Real-time visualization and mapping of the maze environment.
 
-Additionally, **/odom messages** are used to track the robot's position. The developed ROS package is tested using **micromouse_maze4.launch**.
 
 ---
 
-This README is prepared according to the requirements of **Question 1**.
+This README addresses both **Question 1 (Maze Solving)** and **Question 2 (Maze Mapping)** requirements.
 
