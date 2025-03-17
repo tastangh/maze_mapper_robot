@@ -61,7 +61,7 @@ roslaunch micromouse_maze micromouse_maze4.launch
 
 ### Run the Solver
 ```bash
-rosrun solve_maze my_solver
+rosrun solve_maze my_mapper
 ```
 
 This command executes **solver.cpp**, allowing TurtleBot3 to start solving the maze.
